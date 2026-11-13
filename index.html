@@ -19,21 +19,21 @@
       radial-gradient(ellipse at 50% 110%, rgba(138,0,18,.35), transparent 55%),
       var(--bg);
     color:var(--ink); font-family:Inter,system-ui,sans-serif;
-    display:flex; flex-direction:column; align-items:center; min-height:100vh; overflow-x:hidden;
+    display:flex; flex-direction:column; align-items:center; min-height:100vh; overflow:hidden;
   }
-  header{ text-align:center; padding:2.2vh 16px 0 }
+  header{ text-align:center; padding:3vh 16px 0; margin-bottom:5vh }
   h1{
     font-family:Oswald,sans-serif; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
-    font-size:clamp(28px,5vw,52px); margin:0; line-height:1;
+    font-size:clamp(28px,5vw,64px); margin:0; line-height:1;
     background:linear-gradient(180deg,#fff 0%,#ffb3b3 45%,var(--red) 100%);
     -webkit-background-clip:text; background-clip:text; color:transparent;
     text-shadow:0 0 40px rgba(208,2,27,.35);
   }
   .sub{color:var(--muted); font-size:14px; margin-top:8px; letter-spacing:.04em; display:none}
 
-  main{ flex:1; display:flex; gap:28px; align-items:center; justify-content:center; flex-wrap:wrap; padding:10px 16px 30px; width:100% }
+  main{ flex:1; display:flex; align-items:flex-start; justify-content:center; padding:0 16px 3vh; width:100% }
 
-  .wheel-wrap{ position:relative; width:min(80vh, 92vw); aspect-ratio:1 }
+  .wheel-wrap{ position:relative; width:min(92vw, calc(100vh - 3vh - 5vh - 3vh - clamp(28px,5vw,64px) - 10px)); aspect-ratio:1; flex:none }
   .wheel-wrap::before{ /* glow */
     content:""; position:absolute; inset:-4%; border-radius:50%;
     background:radial-gradient(circle, rgba(208,2,27,.45) 55%, transparent 71%); filter:blur(18px); z-index:0;
@@ -133,6 +133,25 @@
   @keyframes up{ from{opacity:0; transform:translateY(12px)} to{opacity:1; transform:none} }
   #confetti{ position:fixed; inset:0; z-index:21; pointer-events:none }
 
+  .won{
+    position:fixed; right:3vw; top:50%; transform:translateY(-50%); z-index:4;
+    display:flex; flex-direction:column; flex-wrap:wrap-reverse; gap:2vh 1.4vw; align-content:flex-start;
+    max-height:84vh; pointer-events:none;
+  }
+  .mini{
+    --h:min(18vh,170px); height:var(--h); width:calc(var(--h)*.75); border-radius:14px; position:relative;
+    background:linear-gradient(160deg,#1a0a0c,#000 70%); border:2px solid var(--red);
+    box-shadow:0 0 22px rgba(208,2,27,.7), inset 0 0 18px rgba(208,2,27,.25);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .mini::after{ content:""; position:absolute; inset:6px; border:1px solid rgba(232,194,122,.4); border-radius:9px }
+  .mini span{
+    font-family:Oswald,sans-serif; font-weight:700; line-height:1; font-size:calc(var(--h)*.48);
+    background:linear-gradient(180deg,#fff 10%,#ff9a9a 55%,var(--red) 100%); -webkit-background-clip:text; background-clip:text; color:transparent;
+    filter:drop-shadow(0 0 8px rgba(255,40,60,.6));
+  }
+  .mini.fly{ animation:fly .9s cubic-bezier(.2,.9,.25,1.1) both }
+  @keyframes fly{ from{ transform:translateX(-38vw) scale(2.6) rotateY(180deg); opacity:0 } 60%{opacity:1} to{ transform:none; opacity:1 } }
   .gear{
     position:fixed; top:14px; right:14px; z-index:6; width:46px; height:46px; border-radius:50%;
     border:1px solid #3a1a1a; background:rgba(12,9,9,.6); color:#8a7a7a; cursor:pointer;
@@ -167,6 +186,7 @@
   <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
 </button>
 <div class="scrim" id="scrim"></div>
+<div class="won" id="won"></div>
 
 <header>
   <h1 data-i18n="title">Колесо фортуни</h1>
@@ -391,19 +411,21 @@
   }
 
   // ---------- reveal ----------
-  let lastWinner = null;
+  let lastWinner = null, pendingCard = false;
+  function hideLastMini(){ const m = $('won').lastElementChild; if (m) m.style.visibility='hidden'; }
   function showWinner(num){
     lastWinner = num;
-    drawn.push(num); store.save(); renderHistory();
+    drawn.push(num); store.save(); pendingCard = true; renderHistory(); hideLastMini();
     $('revealNum').textContent = num;
     const inner = $('cardInner'); inner.style.animation='none'; void inner.offsetWidth; inner.style.animation='';
     $('reveal').classList.add('show');
-    setTimeout(() => { winSound(); confetti(); }, 1100);
+    setTimeout(() => { if (!$('reveal').classList.contains('show')) return; winSound(); confetti(); }, 1100);
   }
   function hideReveal(){
     if (!$('reveal').classList.contains('show')) return;
     $('reveal').classList.remove('show');
     stopConfetti();
+    if (pendingCard){ pendingCard = false; flyNext = true; renderCards(); }
     slices = numbers(); draw();
     spinBtn.disabled = false; spinBtn.textContent = t('spin');
   }
@@ -433,7 +455,14 @@
   function stopConfetti(){ cancelAnimationFrame(confRaf); parts = []; cx.clearRect(0,0,cc.width,cc.height); }
 
   // ---------- UI ----------
+  let flyNext = false;
+  function renderCards(){
+    const w = $('won');
+    w.innerHTML = drawn.map((d,i) => `<div class="mini${flyNext && i===drawn.length-1 ? ' fly':''}"><span>${d}</span></div>`).join('');
+    flyNext = false;
+  }
   function renderHistory(){
+    renderCards();
     const h = $('history');
     $('drawnCount').textContent = drawn.length;
     $('leftCount').textContent = Math.max(0, maxN - (noRepeat() ? drawn.filter(d=>d<=maxN).length : 0));
