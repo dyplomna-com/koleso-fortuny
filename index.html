@@ -40,7 +40,7 @@
   }
   canvas{ position:relative; z-index:1; width:100%; height:100%; display:block }
   .pointer{
-    position:absolute; top:-2.5%; left:50%; transform:translateX(-50%); z-index:3; width:9%; transform-origin:50% 20%;
+    position:absolute; top:-5.5%; left:50%; transform:translateX(-50%); z-index:3; width:6.5%; transform-origin:50% 20%;
     filter:drop-shadow(0 4px 6px rgba(0,0,0,.7));
   }
   .pointer.tick{ animation:tick .12s ease-out }
@@ -261,7 +261,7 @@
   const TAU = Math.PI * 2;
 
   // ---------- state ----------
-  let maxN = 50, drawn = [], rotation = 0, spinning = false;
+  let maxN = 50, drawn = [], rotation = 0, spinning = false, winIdx = -1;
   const store = {
     load(){ try{ const s = JSON.parse(localStorage.getItem('koleso-state')||'null'); if(s){ maxN = s.maxN||50; drawn = Array.isArray(s.drawn)?s.drawn:[]; $('noRepeat').checked = s.noRepeat!==false; $('sound').checked = s.sound!==false; if(s.speed) $('speed').value = s.speed; } }catch(e){} },
     save(){ try{ localStorage.setItem('koleso-state', JSON.stringify({maxN, drawn, noRepeat:$('noRepeat').checked, sound:$('sound').checked, speed:$('speed').value})); }catch(e){} }
@@ -312,6 +312,7 @@
       const a0 = rotation + i*seg - Math.PI/2, a1 = a0 + seg;
       ctx.beginPath(); ctx.moveTo(c,c); ctx.arc(c,c,R,a0,a1); ctx.closePath();
       ctx.fillStyle = sliceColor(i,n); ctx.fill();
+      if (i === winIdx){ ctx.fillStyle = 'rgba(255,214,140,.35)'; ctx.fill(); }
       ctx.strokeStyle = 'rgba(232,194,122,.55)'; ctx.lineWidth = Math.max(1, size*0.0025); ctx.stroke();
 
       // label
@@ -321,7 +322,7 @@
       ctx.font = `700 ${fs}px Oswald, sans-serif`;
       ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
       ctx.fillStyle = '#fff';
-      ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 4;
+      ctx.shadowColor = i === winIdx ? '#ffcc66' : 'rgba(0,0,0,.6)'; ctx.shadowBlur = i === winIdx ? 14 : 4;
       ctx.fillText(String(slices[i]), R*0.92, 0);
       ctx.restore();
     }
@@ -374,13 +375,14 @@
   function spin(){
     if (spinning) return;
     if (typeof closePanel === 'function') closePanel();
+    winIdx = -1;
     slices = numbers();
     if (slices.length === 0){ draw(); return; }
     audio(); if (actx && actx.state === 'suspended') actx.resume();
 
     const n = slices.length, seg = TAU/n;
     const idx = randInt(n);
-    const jitter = (randFloat()-0.5) * seg * 0.7;
+    const jitter = (randFloat()-0.5) * seg * 0.3;
     const target = ((-(idx+0.5)*seg + jitter) % TAU + TAU) % TAU;
     const cur = ((rotation % TAU) + TAU) % TAU;
     let delta = target - cur; if (delta < 0) delta += TAU;
@@ -404,7 +406,8 @@
       else {
         rotation = start + total;
         spinning = false;
-        setTimeout(() => showWinner(slices[idx]), 450);
+        winIdx = idx; draw();
+        setTimeout(() => showWinner(slices[idx]), 1200);
       }
     }
     requestAnimationFrame(frame);
@@ -426,6 +429,7 @@
     $('reveal').classList.remove('show');
     stopConfetti();
     if (pendingCard){ pendingCard = false; flyNext = true; renderCards(); }
+    winIdx = -1;
     slices = numbers(); draw();
     spinBtn.disabled = false; spinBtn.textContent = t('spin');
   }
