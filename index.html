@@ -21,7 +21,7 @@
     color:var(--ink); font-family:Inter,system-ui,sans-serif;
     display:flex; flex-direction:column; align-items:center; min-height:100vh; overflow-x:hidden;
   }
-  header{ text-align:center; padding:22px 16px 6px }
+  header{ text-align:center; padding:2.2vh 16px 0 }
   h1{
     font-family:Oswald,sans-serif; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
     font-size:clamp(28px,5vw,52px); margin:0; line-height:1;
@@ -29,11 +29,11 @@
     -webkit-background-clip:text; background-clip:text; color:transparent;
     text-shadow:0 0 40px rgba(208,2,27,.35);
   }
-  .sub{color:var(--muted); font-size:14px; margin-top:8px; letter-spacing:.04em}
+  .sub{color:var(--muted); font-size:14px; margin-top:8px; letter-spacing:.04em; display:none}
 
-  main{ display:flex; gap:28px; align-items:center; justify-content:center; flex-wrap:wrap; padding:10px 16px 30px; width:100% }
+  main{ flex:1; display:flex; gap:28px; align-items:center; justify-content:center; flex-wrap:wrap; padding:10px 16px 30px; width:100% }
 
-  .wheel-wrap{ position:relative; width:min(78vh, 92vw, 640px); aspect-ratio:1 }
+  .wheel-wrap{ position:relative; width:min(80vh, 92vw); aspect-ratio:1 }
   .wheel-wrap::before{ /* glow */
     content:""; position:absolute; inset:-4%; border-radius:50%;
     background:radial-gradient(circle, rgba(208,2,27,.45) 55%, transparent 71%); filter:blur(18px); z-index:0;
@@ -133,19 +133,40 @@
   @keyframes up{ from{opacity:0; transform:translateY(12px)} to{opacity:1; transform:none} }
   #confetti{ position:fixed; inset:0; z-index:21; pointer-events:none }
 
-  .fs-btn{ position:fixed; top:14px; right:14px; z-index:5 }
-  .langs{ position:fixed; top:14px; left:14px; z-index:5; display:flex; border:1px solid #3a1a1a; border-radius:10px; overflow:hidden; background:#0c0909 }
+  .gear{
+    position:fixed; top:14px; right:14px; z-index:6; width:46px; height:46px; border-radius:50%;
+    border:1px solid #3a1a1a; background:rgba(12,9,9,.6); color:#8a7a7a; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; opacity:.35; transition:opacity .25s, color .25s, transform .4s;
+  }
+  .gear:hover{ opacity:1; color:#fff; transform:rotate(60deg) }
+  .scrim{ position:fixed; inset:0; z-index:9; background:rgba(0,0,0,.45); opacity:0; pointer-events:none; transition:opacity .3s }
+  .scrim.show{ opacity:1; pointer-events:auto }
+  .panel{
+    position:fixed !important; top:0; right:0; height:100%; z-index:10; width:min(360px,92vw) !important;
+    border-radius:18px 0 0 18px !important; overflow-y:auto;
+    transform:translateX(105%); transition:transform .35s cubic-bezier(.2,.8,.2,1);
+  }
+  .panel.open{ transform:none }
+  .panel-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px }
+  .panel-head h2{ margin:0 }
+  .x{ background:none; border:none; color:var(--muted); font-size:20px; cursor:pointer; padding:4px 8px; border-radius:8px }
+  .x:hover{ color:#fff; background:#1d1010 }
+  .btn.wide{ width:100%; margin-top:10px; padding:12px }
+  .langs{ display:flex; border:1px solid #3a1a1a; border-radius:10px; overflow:hidden; background:#000; margin-bottom:16px }
+  .langs button{ flex:1 }
   .langs button{ background:transparent; color:var(--muted); border:none; padding:9px 12px; font:600 13px Inter,sans-serif; cursor:pointer; letter-spacing:.05em }
   .langs button:hover{ color:var(--ink) }
   .langs button.on{ background:var(--red); color:#fff }
 
-  @media (max-width:700px){ .fs-btn{ top:auto; bottom:14px } header{ padding-top:64px } }
+  
 </style>
 </head>
 <body>
 
-<div class="langs" id="langs"><button data-lang="uk">УКР</button><button data-lang="ru">РУС</button><button data-lang="pl">PL</button></div>
-<button class="btn ghost fs-btn" id="fsBtn">⛶ <span data-i18n="fs">На весь екран</span></button>
+<button class="gear" id="gearBtn" aria-label="Settings" title="Налаштування">
+  <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+</button>
+<div class="scrim" id="scrim"></div>
 
 <header>
   <h1 data-i18n="title">Колесо фортуни</h1>
@@ -167,8 +188,12 @@
     <button class="hub" id="spinBtn" data-i18n="spin">Крутити</button>
   </div>
 
-  <aside class="panel">
-    <h2 data-i18n="settings">Налаштування</h2>
+  <aside class="panel open" id="panel">
+    <div class="panel-head">
+      <h2 data-i18n="settings">Налаштування</h2>
+      <button class="x" id="closePanel" aria-label="Close">✕</button>
+    </div>
+    <div class="langs" id="langs"><button data-lang="uk">УКР</button><button data-lang="ru">РУС</button><button data-lang="pl">PL</button></div>
     <label for="maxN" data-i18n="count">Кількість учасників (номери від 1 до …)</label>
     <div class="row">
       <input type="number" id="maxN" min="2" max="500" value="50">
@@ -192,6 +217,8 @@
       <button class="btn ghost" id="undoBtn">↶ <span data-i18n="undo">Повернути останній</span></button>
       <button class="btn ghost" id="resetBtn" data-i18n="reset">Почати заново</button>
     </div>
+    <button class="btn ghost wide" id="fsBtn">⛶ <span data-i18n="fs">На весь екран</span></button>
+    <button class="btn wide" id="doneBtn" data-i18n="done">Готово — сховати налаштування</button>
     <div class="hint" data-i18n="hint">Якщо людей прийшло більше — просто змініть число й натисніть «Застосувати»: номери, що вже випали, збережуться.</div>
   </aside>
 </main>
@@ -326,6 +353,7 @@
 
   function spin(){
     if (spinning) return;
+    if (typeof closePanel === 'function') closePanel();
     slices = numbers();
     if (slices.length === 0){ draw(); return; }
     audio(); if (actx && actx.state === 'suspended') actx.resume();
@@ -442,7 +470,7 @@
       e.preventDefault();
       if ($('reveal').classList.contains('show')) hideReveal(); else spin();
     }
-    if (e.key === 'Escape') hideReveal();
+    if (e.key === 'Escape'){ hideReveal(); closePanel(); }
   });
 
   $('fsBtn').addEventListener('click', async () => {
@@ -466,21 +494,21 @@
       sound:'Звук',left:'Залишилось',drawn:'Випало',empty:'Ще нічого не випало',undo:'Повернути останній',
       reset:'Почати заново',sure:'Точно? Натисніть ще раз',
       hint:'Якщо людей прийшло більше — просто змініть число й натисніть «Застосувати»: номери, що вже випали, збережуться.',
-      win:'Виграшний номер',close:'Натисніть будь-де, щоб продовжити',fs:'На весь екран',fsNo:'Повний екран недоступний',all:'Усі номери вже випали'},
+      win:'Виграшний номер',close:'Натисніть будь-де, щоб продовжити',fs:'На весь екран',done:'Готово — сховати налаштування',fsNo:'Повний екран недоступний',all:'Усі номери вже випали'},
     ru:{title:'Колесо фортуны',sub:'Нажмите «Крутить» или пробел',spin:'Крутить',settings:'Настройки',
       count:'Количество участников (номера от 1 до …)',apply:'Применить',speed:'Скорость вращения',
       s1:'Медленно (~9 с)',s2:'Очень медленно (~13 с)',s3:'Интрига (~18 с)',norep:'Не повторять выпавшие номера',
       sound:'Звук',left:'Осталось',drawn:'Выпало',empty:'Пока ничего не выпало',undo:'Вернуть последний',
       reset:'Начать заново',sure:'Точно? Нажмите ещё раз',
       hint:'Если людей пришло больше — просто измените число и нажмите «Применить»: выпавшие номера сохранятся.',
-      win:'Выигрышный номер',close:'Нажмите в любом месте, чтобы продолжить',fs:'Во весь экран',fsNo:'Полный экран недоступен',all:'Все номера уже выпали'},
+      win:'Выигрышный номер',close:'Нажмите в любом месте, чтобы продолжить',fs:'Во весь экран',done:'Готово — скрыть настройки',fsNo:'Полный экран недоступен',all:'Все номера уже выпали'},
     pl:{title:'Koło fortuny',sub:'Kliknij „Kręć” lub spację',spin:'Kręć',settings:'Ustawienia',
       count:'Liczba uczestników (numery od 1 do …)',apply:'Zastosuj',speed:'Prędkość obrotu',
       s1:'Wolno (~9 s)',s2:'Bardzo wolno (~13 s)',s3:'Napięcie (~18 s)',norep:'Nie powtarzaj wylosowanych numerów',
       sound:'Dźwięk',left:'Pozostało',drawn:'Wylosowano',empty:'Jeszcze nic nie wylosowano',undo:'Cofnij ostatni',
       reset:'Zacznij od nowa',sure:'Na pewno? Kliknij jeszcze raz',
       hint:'Jeśli przyszło więcej osób — zmień liczbę i kliknij „Zastosuj”: wylosowane numery zostaną zachowane.',
-      win:'Zwycięski numer',close:'Kliknij gdziekolwiek, aby kontynuować',fs:'Pełny ekran',fsNo:'Pełny ekran niedostępny',all:'Wszystkie numery już wylosowano'}
+      win:'Zwycięski numer',close:'Kliknij gdziekolwiek, aby kontynuować',fs:'Pełny ekran',done:'Gotowe — ukryj ustawienia',fsNo:'Pełny ekran niedostępny',all:'Wszystkie numery już wylosowano'}
   };
   let lang = 'uk';
   try{ const l = localStorage.getItem('koleso-lang'); if (I18N[l]) lang = l; }catch(e){}
@@ -495,6 +523,20 @@
     renderHistory(); draw();
   }
   document.querySelectorAll('#langs button').forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
+
+  // ---------- settings drawer ----------
+  const panel = $('panel'), scrim = $('scrim');
+  function openPanel(){ panel.classList.add('open'); scrim.classList.add('show'); }
+  function closePanel(){ panel.classList.remove('open'); scrim.classList.remove('show'); }
+  scrim.classList.add('show');
+  $('gearBtn').addEventListener('click', () => panel.classList.contains('open') ? closePanel() : openPanel());
+  $('closePanel').addEventListener('click', closePanel);
+  $('doneBtn').addEventListener('click', closePanel);
+  scrim.addEventListener('click', closePanel);
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+    if (e.key === 's' || e.key === 'S' || e.key === 'і' || e.key === 'ы') { panel.classList.contains('open') ? closePanel() : openPanel(); }
+  });
   resize(); setLang(lang);
 })();
 </script>
